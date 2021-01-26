@@ -33,16 +33,16 @@ class PRISM:
 ###############################################
 
     def _svd(final_excitation, channels = 3):
-        print("svd")
-        print(final_excitation.shape)
+        # print("svd")
+        # print(final_excitation.shape)
         final_layer_input = final_excitation.permute(0,2,3,1).reshape(-1, final_excitation.shape[1])
-        print(final_layer_input.shape)
+        # print(final_layer_input.shape)
         normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
         u, s, v = normalized_final_layer_input.svd(compute_uv=True)
         raw_features = u[:,:channels].matmul(s[:channels].diag())
-        print(raw_features.shape)
+        # print(raw_features.shape)
         x = raw_features.view(final_excitation.shape[0], final_excitation.shape[2], final_excitation.shape[3], 3).permute(0,3,1,2)
-        print(x.shape)
+        # print(x.shape)
         return x
 
     def _feature_normalization(single_excitation):
@@ -72,7 +72,7 @@ class PRISM:
             return
 
         # print(f"PRISM._excitations size: {len(PRISM._excitations)}")
-        [print(e.shape) for e in PRISM._excitations]
+        # [print(e.shape) for e in PRISM._excitations]
 
         with no_grad():
             extracted_features = PRISM._svd(PRISM._excitations.pop(), 3)
