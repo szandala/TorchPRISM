@@ -6,9 +6,12 @@ from torch.nn.functional import interpolate
 class PRISM:
     _excitations = []
     _hook_handlers = []
-
+    first = False
     def _excitation_hook(module, input, output):
-        PRISM._excitations.append(input[0])
+        if not PRISM.first:
+            PRISM._excitations.append(input[0])
+            PRISM.first = True
+        PRISM._excitations.append(output)
 
     def register_hooks(model, recursive=False):
         if not recursive and PRISM._hook_handlers:
@@ -24,17 +27,18 @@ class PRISM:
                 PRISM._hook_handlers.append(layer.register_forward_hook(PRISM._excitation_hook))
 
     def prune_old_hooks(model):
+        if not PRISM._hook_handlers:
+            print("No hooks to remove")
         for hook in PRISM._hook_handlers:
             hook.remove()
-        else:
-            print("No hooks to remove")
+
         PRISM._hook_handlers = []
 
 ###############################################
 
     def _svd(final_excitation, channels = 3):
-        # print("svd")
-        # print(final_excitation.shape)
+        print("svd")
+        print(final_excitation.shape)
         final_layer_input = final_excitation.permute(0,2,3,1).reshape(-1, final_excitation.shape[1])
         # print(final_layer_input.shape)
         normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
@@ -72,7 +76,7 @@ class PRISM:
             return
 
         # print(f"PRISM._excitations size: {len(PRISM._excitations)}")
-        # [print(e.shape) for e in PRISM._excitations]
+        [print(e.shape) for e in PRISM._excitations]
 
         with no_grad():
             extracted_features = PRISM._svd(PRISM._excitations.pop(), 3)
