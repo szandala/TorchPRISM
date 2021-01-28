@@ -41,6 +41,9 @@ On the sample images below we can see wolves
 
 ![Snippet result](SoftwareX_snippet/PRISM_result.png)
 
+We can notice that all wolves have similar colors - features, found on their bodies. Furthermore the coyote also shows almost identical characteristics except the mouth element. wolves have a black stain around their noses, while coyote does not.
+
+
 ### Citation
 Currently in the form of pre-print, but hope soon as publication.
 
