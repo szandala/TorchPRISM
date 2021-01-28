@@ -52,6 +52,7 @@ class PRISM:
     def _feature_normalization(single_excitation):
         feature_excitation = single_excitation.sum(dim=1).unsqueeze(1)
         # print(f"FE1: {single_excitation.shape}")
+        # reducing number inflation
         feature_excitation /= feature_excitation.max()
         # print(f"FE2: {feature_excitation.shape}")
         return feature_excitation
