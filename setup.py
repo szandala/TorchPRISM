@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="torchprism",
-    version="0.2.0",
+    version="1.0.0",
     author="Tomasz Szandala",
     author_email="tomasz.szandala@gmail.com",
     description="Principal Image Sections Mapping for PyTorch",

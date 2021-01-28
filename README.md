@@ -1,13 +1,13 @@
 # PRISM - **Pr**incipal **I**mage **S**ections **M**apping
 
-![PRISM logo](PRISM_logo.png)
+![PRISM logo](https://raw.githubusercontent.com/szandala/TorchPRISM/master/PRISM_logo.png)
 
 A novel tool that utilizes Principal Component Analysis to display discriminative featues detected by a given convolutional neural network.
 It complies with virtually all CNNs.
 
 ### Demo
 
-[Simplest snippet](SoftwareX_snippet/snippet.py) of working code.
+[Simplest snippet](https://github.com/szandala/TorchPRISM/blob/master/SoftwareX_snippet/snippet.py) of working code.
 
 ```python
 import sys
@@ -39,7 +39,7 @@ With such a prepared model we can perform the classification and, since the actu
 The results allow us to see the discriminative features found by the model.
 On the sample images below we can see wolves
 
-![Snippet result](SoftwareX_snippet/PRISM_result.png)
+![Snippet result](https://raw.githubusercontent.com/szandala/TorchPRISM/master/SoftwareX_snippet/PRISM_result.png)
 
 We can notice that all wolves have similar colors - features, found on their bodies. Furthermore the coyote also shows almost identical characteristics except the mouth element. wolves have a black stain around their noses, while coyote does not.
 
@@ -57,4 +57,3 @@ Currently in the form of pre-print, but hope soon as publication.
       primaryClass={cs.CV}
 }
 ```
-
