@@ -25,3 +25,5 @@ setuptools.setup(
     ],
     keywords=["deep-learning", "PCA", "visualization", "interpretability"]
 )
+
+# usage: python setup.py sdist bdist_wheel
