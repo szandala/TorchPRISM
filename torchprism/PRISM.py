@@ -6,11 +6,13 @@ from torch.nn.functional import interpolate
 class PRISM:
     _excitations = []
     _hook_handlers = []
-    first = False
+    _is_orig_image= True
+
     def _excitation_hook(module, input, output):
-        if not PRISM.first:
+        # for better output sharpness we collect input images
+        if  PRISM._is_orig_image:
             PRISM._excitations.append(input[0])
-            PRISM.first = True
+            PRISM._is_orig_image = False
         PRISM._excitations.append(output)
 
     def register_hooks(model, recursive=False):
@@ -82,4 +84,5 @@ class PRISM:
             return rgb_features_map
 
     def reset_excitations():
+        PRISM._is_orig_image = True
         PRISM._excitations = []
