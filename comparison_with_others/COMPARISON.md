@@ -58,4 +58,7 @@ Springenberg, J., et al. "Striving for Simplicity: The All Convolutional Net." I
 
 ### Guided Grad-CAM
 
+```raw
+Selvaraju, Ramprasaath R., et al. "Grad-cam: Why did you say that?." arXiv preprint arXiv:1611.07450 (2016).
+```
 ### Excitation Backpropagation
