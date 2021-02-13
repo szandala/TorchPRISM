@@ -13,8 +13,6 @@
   * [Excitation Backpropagation](#Excitation_Backpropagation)
   * [Linear approximation](#Linear_approximation)
 
-RISE?
-
 ## Research Sample
 For the comparison we have chosen 2 images. One representing Border Collie dog and second with Border Collie and Siberian Husky specimens.
 
@@ -59,8 +57,24 @@ Springenberg, J., et al. "Striving for Simplicity: The All Convolutional Net." I
 
 ### Gradient
 
+Integrated Gradient is an interpretability or explainability technique for deep neural networks which visualizes its input feature importance that contributes to the model's prediction.
+Integrated Gradient is built on two axioms which need to be satisfied:
+* Sensitivity and
+* Implementation
+
+To calculate the Sensitivity, we establish a Baseline image as a starting point. We then build a sequence of images which we interpolate from a baseline image to the actual image to calculate the integrated gradients.
+
+Implementation invariance is satisfied when two functionally equivalent networks have identical attributions for the same input image and the baseline image.
+Two networks are functionally equivalent when their outputs are equal for all inputs despite having very different implementations.
+
+It does not need any modification to the original deep neural network and can be applied to images, text as well as structured data.
+
 ![comparable output - Gradient](./output_gradient.jpg)
 
+```raw
+Simonyan, Karen, Andrea Vedaldi, and Andrew Zisserman. "Deep inside convolutional networks: Visualising image classification models and saliency maps." (2014).
+Srinivas, Suraj, and Francois Fleuret. Full-Gradient Representation for Neural Network Visualization. No. CONF. 2019.
+```
 
 ### Grad-CAM
 
@@ -72,7 +86,7 @@ Selvaraju, Ramprasaath R., et al. "Grad-cam: Visual explanations from deep netwo
 
 ### Guided Grad-CAM
 
-Grad-CAM may be combined with existing pixel-space visualizations, most notably with Guided Backpropagation, to create a high-resolution class-discriminative visualization.
+Grad-CAM may be combined with existing pixel-space visualizations, most notably with Guided Backpropagation, to create a high-resolution class-discriminative visualization. In order to obtain it we just multiply result from Grad-CAM and Guided Propagation.
 
 ![comparable output - Guided Grad-CAM](./output_guided-grad-cam.jpg)
 
@@ -81,7 +95,16 @@ Selvaraju, Ramprasaath R., et al. "Grad-cam: Why did you say that?." arXiv prepr
 ```
 ### Excitation Backpropagation
 
+Between activation neurons, we define a connection to be excitatory if its weight is non-negative, and inhibitory otherwise. Excitation Backprop passes top-down signals through excitatory connections between activation neurons.
+Recursively propagating the top-down signal layer by layer we can compute attention maps from any intermediate convolutional layer. For this method, we simply take the sum across channels to generate a marginal winning probability map as our attention map, which is a 2D probability heatmap.
+
+Neurons at higher-level layers have larger receptive fields and strides. Thus, they can capture larger areas but with lower spatial accuracy. Neurons at lower layers tend to more precisely localize features at smaller scales. Therefore we should always aim, with this method, for a balance between readability nad usability.
+
 ![comparable output - Excitation Backpropagation](./output_excitationBP.jpg)
+
+```raw
+Zhang, Jianming, et al. "Top-down neural attention by excitation backprop." International Journal of Computer Vision 126.10 (2018): 1084-1102.
+```
 
 ### Linear Approximation
 
