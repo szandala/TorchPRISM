@@ -10,7 +10,7 @@
 * [Targeted Methods](#Targeted_Methods)
   * [Grad-CAM](#Grad-CAM)
   * [Guided Grad-CAM](#Guided_Grad-CAM)
-  * [Excitation Backpropagation](#Excitation_Backpropagation)
+  * [Contrastive Excitation Backpropagation](#Contrastive_Excitation_Backpropagation)
   * [Linear approximation](#Linear_approximation)
 
 ## Research Sample
@@ -59,7 +59,7 @@ Springenberg, J., et al. "Striving for Simplicity: The All Convolutional Net." I
 
 Integrated Gradient is an interpretability or explainability technique for deep neural networks which visualizes its input feature importance that contributes to the model's prediction.
 Integrated Gradient is built on two axioms which need to be satisfied:
-* Sensitivity and
+* Sensitivity
 * Implementation
 
 To calculate the Sensitivity, we establish a Baseline image as a starting point. We then build a sequence of images which we interpolate from a baseline image to the actual image to calculate the integrated gradients.
@@ -78,6 +78,11 @@ Srinivas, Suraj, and Francois Fleuret. Full-Gradient Representation for Neural N
 
 ### Grad-CAM
 
+The most popular method for convolutional neural networks. Grad-CAM is a form of post-hoc attention, meaning that it is a method for producing heatmaps that is applied to an already-trained neural network after training is complete and the parameters are fixed. This is distinct from trainable attention, which involves learning how to produce attention maps during training by learning particular parameters.
+
+Grad-CAM is a generalization of CAM (Class Activation Mapping) and unlike it does not require using a particular architecture. Grad-CAM exploits the spatial information that is preserved through convolutional layers, in order to understand which parts of an input image were important for a classification decision.
+Similar to CAM, Grad-CAM uses the feature maps produced by the last convolutional layer of a CNN. The authors of Grad-CAM argue, “we can expect the last convolutional layers to have the best compromise between high-level semantics and detailed spatial information.”
+
 ![comparable output - Grad-CAM](./output_grad-cam.jpg)
 
 ```
@@ -93,14 +98,16 @@ Grad-CAM may be combined with existing pixel-space visualizations, most notably 
 ```raw
 Selvaraju, Ramprasaath R., et al. "Grad-cam: Why did you say that?." arXiv preprint arXiv:1611.07450 (2016).
 ```
-### Excitation Backpropagation
+### Contrastive Excitation Backpropagation
 
 Between activation neurons, we define a connection to be excitatory if its weight is non-negative, and inhibitory otherwise. Excitation Backprop passes top-down signals through excitatory connections between activation neurons.
 Recursively propagating the top-down signal layer by layer we can compute attention maps from any intermediate convolutional layer. For this method, we simply take the sum across channels to generate a marginal winning probability map as our attention map, which is a 2D probability heatmap.
 
 Neurons at higher-level layers have larger receptive fields and strides. Thus, they can capture larger areas but with lower spatial accuracy. Neurons at lower layers tend to more precisely localize features at smaller scales. Therefore we should always aim, with this method, for a balance between readability nad usability.
 
-![comparable output - Excitation Backpropagation](./output_excitationBP.jpg)
+There is also variant of Non-Contrastive Excitation Backpropagation which is class agnostic. It only displays activation specific for given layer without respect to which class we are interested in.
+
+![comparable output - Contrastive Excitation Backpropagation](./output_excitationBP.jpg)
 
 ```raw
 Zhang, Jianming, et al. "Top-down neural attention by excitation backprop." International Journal of Computer Vision 126.10 (2018): 1084-1102.
