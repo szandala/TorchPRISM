@@ -67,7 +67,7 @@ To calculate the Sensitivity, we establish a Baseline image as a starting point.
 Implementation invariance is satisfied when two functionally equivalent networks have identical attributions for the same input image and the baseline image.
 Two networks are functionally equivalent when their outputs are equal for all inputs despite having very different implementations.
 
-It does not need any modification to the original deep neural network and can be applied to images, text as well as structured data.
+Gradient does not need any modification to the original deep neural network and can be applied to images, text as well as structured data.
 
 ![comparable output - Gradient](./output_gradient.jpg)
 
