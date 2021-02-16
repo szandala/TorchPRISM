@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="torchprism",
-    version="1.0.1",
+    version="1.0.2",
     author="Tomasz Szandala",
     author_email="tomasz.szandala@gmail.com",
     description="Principal Image Sections Mapping for PyTorch",
@@ -26,4 +26,6 @@ setuptools.setup(
     keywords=["deep-learning", "PCA", "visualization", "interpretability"]
 )
 
-# usage: python setup.py sdist bdist_wheel
+# rm -rf build/ dist/ torchprism.egg-info/
+# python setup.py sdist bdist_wheel
+# twine upload dist/*
