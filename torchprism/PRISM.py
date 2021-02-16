@@ -13,6 +13,7 @@ class PRISM:
         if PRISM._is_orig_image:
             PRISM._excitations.append(input[0])
             PRISM._is_orig_image = False
+
         PRISM._excitations.append(output)
 
     def register_hooks(model, recursive=False):
@@ -42,26 +43,21 @@ class PRISM:
 
     ###############################################
 
-    def _svd(final_excitation, channels=3):
-        # TODO: consider single channel interpretation
+    def _svd(final_excitation):
+
         final_layer_input = final_excitation.permute(0, 2, 3, 1).reshape(
             -1, final_excitation.shape[1]
         )
-        normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
+        # normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
+        normalized_final_layer_input = final_layer_input
         u, s, v = normalized_final_layer_input.svd(compute_uv=True)
-        raw_features = u[:, :channels].matmul(s[:channels].diag())
+        raw_features = u[:, :3].matmul(s[:3].diag())
         return raw_features.view(
             final_excitation.shape[0],
             final_excitation.shape[2],
             final_excitation.shape[3],
-            3,
+            3
         ).permute(0, 3, 1, 2)
-
-    def _feature_normalization(single_excitation):
-        feature_excitation = single_excitation.sum(dim=1, keepdim=True)
-        # reducing number inflation
-        feature_excitation /= feature_excitation.max()
-        return feature_excitation
 
     def _upsampling(extracted_features, pre_excitations):
         for e in pre_excitations[::-1]:
@@ -71,7 +67,7 @@ class PRISM:
                 mode="bilinear",
                 align_corners=False,
             )
-            extracted_features *= PRISM._feature_normalization(e)
+            extracted_features *= e.mean(dim=1, keepdim=True)
         return extracted_features
 
     def _normalize_to_rgb(features):
@@ -90,7 +86,7 @@ class PRISM:
         # [print(e.shape) for e in PRISM._excitations]
 
         with no_grad():
-            extracted_features = PRISM._svd(PRISM._excitations.pop(), 3)
+            extracted_features = PRISM._svd(PRISM._excitations.pop())
             extracted_features = PRISM._upsampling(
                 extracted_features, PRISM._excitations
             )

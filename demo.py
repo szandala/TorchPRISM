@@ -49,7 +49,7 @@ def print_output(output, image_files_names):
         print(f"\n{name}:")
         classes = []
         for k, v in sorted(listed_output[i].items(), key=lambda o: o[1], reverse=True)[:5]:
-            print(f"{k}: {v:.2f}")
+            # print(f"{k}: {v:.2f}")
             classes.append(f"{k}: {v:.2f}")
         classification.append(classes)
     return classification
@@ -59,7 +59,8 @@ def normalize_image(image):
     return (image - image.min()) / (image.max() - image.min())
 
 if __name__ == "__main__":
-    arches = ["vgg11",
+    arches = [ #"vgg16"]
+        "vgg11",
         "vgg16",
         "vgg19",
         "resnet18",
@@ -113,5 +114,5 @@ if __name__ == "__main__":
                     ax[1][column].axis('off')
 
             fig.tight_layout()
-            plt.savefig(f"PRISM_{arch}_prelast.png", format='png', bbox_inches="tight", dpi=500)
+            plt.savefig(f"PRISM_{arch}.png", format='png', bbox_inches="tight", dpi=500)
 
