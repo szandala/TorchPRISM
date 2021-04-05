@@ -28,7 +28,7 @@ normalize = transforms.Compose([
 ])
 
 def read_images_2_batch():
-    image_files = glob.glob("./samples/b/*.jpg")
+    image_files = glob.glob("./samples/e/*.jpg")
     image_files.sort()
 
     input_images = [ cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB) for f in image_files ]

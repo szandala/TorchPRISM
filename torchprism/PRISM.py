@@ -65,10 +65,9 @@ class PRISM:
     def _quantize(maps):
         # h,w,c
 
-        # maps = PRISM._normalize_to_rgb(maps).permute(0, 2, 3, 1)
-
-        # quant_maps = 0.5 * round(maps / 0.5)
-        quant_maps = maps.permute(0, 2, 3, 1)
+        maps = PRISM._normalize_to_rgb(maps).permute(0, 2, 3, 1)
+        quant_maps = 0.5 * round(maps / 0.5)
+        # quant_maps = maps.permute(0, 2, 3, 1)
         image_colors = []
         for img in quant_maps:
             colors_set = set()
@@ -79,8 +78,8 @@ class PRISM:
             image_colors.append(colors_set)
         # x = quant_maps.unique(dim=3)
         # print(x.shape)
-            # [print(p) for p in colors_set]
-            # print(len(colors_set))
+        # [print(p) for p in colors_set]
+        # print(len(colors_set))
         return quant_maps, image_colors
 
     def _intersection(maps):
@@ -127,7 +126,11 @@ class PRISM:
         )
         return scaled_features
 
-    def get_maps():
+    def get_maps(grad_extrap=True, inclusive=False, exclusive=False):
+        grad_extrap = False
+        inclusive= False
+        exclusive = True
+
         if not PRISM._excitations:
             print("No data in hooks. Have You used `register_hooks(model)` method?")
             return
@@ -137,27 +140,42 @@ class PRISM:
         with no_grad():
             extracted_features = PRISM._svd(PRISM._excitations.pop())
 
-            # extracted_features = PRISM. _normalize_to_rgb(extracted_features)
+            # rgb_features_map = PRISM._normalize_to_rgb(extracted_features)
             # extracted_features = PRISM._quantize(extracted_features)
-            # extracted_features = PRISM._intersection(extracted_features)
+            if inclusive and exclusive:
+                # rgb_features_map = 0.5 * round(rgb_features_map / 0.5)
+                rgb_features_map, _ = PRISM._quantize(extracted_features)
+                rgb_features_map = rgb_features_map.permute(0, 3, 1, 2)
+            elif exclusive:
+                rgb_features_map = PRISM._difference(extracted_features)
+            elif inclusive:
+                rgb_features_map = PRISM._intersection(extracted_features)
+                # print(rgb_features_map)
+            else:
+                rgb_features_map = extracted_features
+                # extracted_features = PRISM._intersection(extracted_features)
             # import sys
             # sys.exit(0)
 
             # extracted_features = PRISM._upsampling(
             #     extracted_features, PRISM._excitations
             # )
-            rgb_features_map = PRISM._normalize_to_rgb(extracted_features)
-            rgb_features_map = 0.5 * round(rgb_features_map / 0.5)
+
             # print(f"min = {rgb_features_map.min()}, max = {rgb_features_map.max()}")
-            rgb_features_map = PRISM._intersection(rgb_features_map)
-            # rgb_features_map = PRISM._difference(rgb_features_map)
+
             # [print(m) for m in rgb_features_map]
             # print(rgb_features_map)
+
+            if grad_extrap:
+                rgb_features_map = PRISM._upsampling(
+                    rgb_features_map, PRISM._excitations
+                )
+                rgb_features_map = PRISM._normalize_to_rgb(rgb_features_map)
+            # else:
+            #     rgb_features_map = PRISM._normalize_to_rgb(extracted_features)
+            #     rgb_features_map = 0.5 * round(rgb_features_map / 0.5)
+                # rgb_features_map, _ = PRISM._quantize(rgb_features_map)
             # prune old PRISM._excitations
-            # rgb_features_map = PRISM._upsampling(
-            #     rgb_features_map, PRISM._excitations
-            # )
-            # rgb_features_map = PRISM._normalize_to_rgb(rgb_features_map)
             PRISM.reset_excitations()
 
             return rgb_features_map
