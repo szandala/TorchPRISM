@@ -6,3 +6,4 @@ torchprism.egg-info/
 *.png
 samples/
 .vscode/
+*.txt
