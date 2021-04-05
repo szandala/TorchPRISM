@@ -3,3 +3,6 @@ dist/
 build/
 venv/
 torchprism.egg-info/
+*.png
+samples/
+.vscode/
