@@ -1,6 +1,8 @@
 from torch.nn import Conv2d, MaxPool2d
-from torch import no_grad
+from torch import no_grad, round
 from torch.nn.functional import interpolate
+import torch
+from itertools import chain
 
 
 class PRISM:
@@ -48,16 +50,63 @@ class PRISM:
         final_layer_input = final_excitation.permute(0, 2, 3, 1).reshape(
             -1, final_excitation.shape[1]
         )
-        # normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
-        normalized_final_layer_input = final_layer_input
+        normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
+        # normalized_final_layer_input = final_layer_input
         u, s, v = normalized_final_layer_input.svd(compute_uv=True)
         raw_features = u[:, :3].matmul(s[:3].diag())
+
         return raw_features.view(
             final_excitation.shape[0],
             final_excitation.shape[2],
             final_excitation.shape[3],
             3
         ).permute(0, 3, 1, 2)
+
+    def _quantize(maps):
+        # h,w,c
+
+        # maps = PRISM._normalize_to_rgb(maps).permute(0, 2, 3, 1)
+
+        # quant_maps = 0.5 * round(maps / 0.5)
+        quant_maps = maps.permute(0, 2, 3, 1)
+        image_colors = []
+        for img in quant_maps:
+            colors_set = set()
+            for row in img:
+                for pixel in row:
+                    colors_set.add(pixel.numpy().tostring())
+                    # print(pixel)
+            image_colors.append(colors_set)
+        # x = quant_maps.unique(dim=3)
+        # print(x.shape)
+            # [print(p) for p in colors_set]
+            # print(len(colors_set))
+        return quant_maps, image_colors
+
+    def _intersection(maps):
+        quant_maps, image_colors = PRISM._quantize(maps)
+        common_colors = set.intersection(*image_colors)
+        # print(len(common_colors))
+        for img in quant_maps:
+            for row in img:
+                for pixel in row:
+                    if pixel.numpy().tostring() not in common_colors:
+                        pixel *= 0.0
+        return quant_maps.permute(0, 3, 1, 2)
+
+    def _difference(maps):
+        quant_maps, image_colors = PRISM._quantize(maps)
+        all_colors= set(chain.from_iterable(image_colors))
+        exclusive_colors = all_colors - set.intersection(*image_colors)
+        # print(len(exclusive_colors))
+        for img in quant_maps:
+            for row in img:
+                for pixel in row:
+                    if pixel.numpy().tostring() not in exclusive_colors:
+                        pixel *= 0.0
+        return quant_maps.permute(0, 3, 1, 2)
+
+
 
     def _upsampling(extracted_features, pre_excitations):
         for e in pre_excitations[::-1]:
@@ -87,12 +136,28 @@ class PRISM:
 
         with no_grad():
             extracted_features = PRISM._svd(PRISM._excitations.pop())
-            extracted_features = PRISM._upsampling(
-                extracted_features, PRISM._excitations
-            )
-            rgb_features_map = PRISM._normalize_to_rgb(extracted_features)
 
+            # extracted_features = PRISM. _normalize_to_rgb(extracted_features)
+            # extracted_features = PRISM._quantize(extracted_features)
+            # extracted_features = PRISM._intersection(extracted_features)
+            # import sys
+            # sys.exit(0)
+
+            # extracted_features = PRISM._upsampling(
+            #     extracted_features, PRISM._excitations
+            # )
+            rgb_features_map = PRISM._normalize_to_rgb(extracted_features)
+            rgb_features_map = 0.5 * round(rgb_features_map / 0.5)
+            # print(f"min = {rgb_features_map.min()}, max = {rgb_features_map.max()}")
+            rgb_features_map = PRISM._intersection(rgb_features_map)
+            # rgb_features_map = PRISM._difference(rgb_features_map)
+            # [print(m) for m in rgb_features_map]
+            # print(rgb_features_map)
             # prune old PRISM._excitations
+            # rgb_features_map = PRISM._upsampling(
+            #     rgb_features_map, PRISM._excitations
+            # )
+            # rgb_features_map = PRISM._normalize_to_rgb(rgb_features_map)
             PRISM.reset_excitations()
 
             return rgb_features_map
