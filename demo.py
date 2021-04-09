@@ -10,7 +10,6 @@ import cv2
 from PIL import Image
 import json
 
-
 with open("classes.json") as json_file:
     CLASSES = json.load(json_file)
 
@@ -28,7 +27,7 @@ normalize = transforms.Compose([
 ])
 
 def read_images_2_batch():
-    image_files = glob.glob("./samples/e/*.jpg")
+    image_files = glob.glob("./samples/f/*.jpg")
     image_files.sort()
 
     input_images = [ cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB) for f in image_files ]
@@ -58,63 +57,6 @@ def normalize_image(image):
     # change image tensor from -1,1 to 0,1
     return ((image - image.min()) / (image.max() - image.min()))
 
-
-
-
-# def kmeans_color_quantization(image, clusters=8, rounds=1):
-#     h, w = image.shape[:2]
-#     samples = np.zeros([h*w,3], dtype=np.float32)
-#     count = 0
-
-#     for x in range(h):
-#         for y in range(w):
-#             samples[count] = image[x][y]
-#             count += 1
-
-#     compactness, labels, centers = cv2.kmeans(samples,
-#             clusters,
-#             None,
-#             (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 10000, 0.0001),
-#             rounds,
-#             cv2.KMEANS_RANDOM_CENTERS)
-
-#     centers = np.uint8(centers)
-#     res = centers[labels.flatten()]
-#     return res.reshape((image.shape))
-
-def quantize(img):
-
-    # img = ((img - img.min()) / (img.max() - img.min()))
-    # img[img<0.1] = 0.0
-    # img[img>=0.1] = 0.1
-    # img[img>=0.2] = 0.2
-    # img[img>=0.3] = 0.3
-    # img[img>=0.4] = 0.4
-    # img[img>=0.5] = 0.5
-    # img[img>=0.6] = 0.6
-    # img[img>=0.7] = 0.7
-    # img[img>=0.8] = 0.8
-    # img[img>=0.9] = 0.9
-    # return img
-    # return np.around(img, decimals=1)
-    # return (0.2 * np.round(img*2 / 0.2))/2
-    # print(0.25 * np.round(img / 0.25))
-
-    return 0.25 * np.round(img / 0.25)
-
-def find_common(images):
-    color_sets = []
-    for img in images:
-        color_table = set()
-        # [np.unique(row, axis=1) for row in img]
-        for row in img:
-            for pixel in row:
-                color_table.add(pixel.tobytes())
-        color_sets.append(color_table)
-    common_colors = set.intersection(*color_sets)
-    print(len(common_colors))
-
-
 if __name__ == "__main__":
     arches = ["vgg16"]
         # "vgg11",
@@ -141,16 +83,12 @@ if __name__ == "__main__":
                 input_batch = input_batch.to("cuda")
                 model.to("cuda")
 
-
             output = model(input_batch)
             percentage = nn.Softmax(dim=1)
-            # print(f"SHAPE {output.shape}")
+
             classification = print_output(percentage(output), image_files_names)
 
             prism_maps = PRISM.get_maps().permute(0, 2, 3, 1).detach().cpu().numpy()
-
-            # find_common(quantize(prism_maps))
-            # sys.exit(0)
 
             plt.title(f"PRISM")
             columns = input_batch.shape[0]
