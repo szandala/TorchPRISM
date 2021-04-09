@@ -51,7 +51,6 @@ class PRISM:
             -1, final_excitation.shape[1]
         )
         normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
-        # normalized_final_layer_input = final_layer_input
         u, s, v = normalized_final_layer_input.svd(compute_uv=True)
         raw_features = u[:, :3].matmul(s[:3].diag())
 
@@ -118,7 +117,7 @@ class PRISM:
         )
         return scaled_features
 
-    def get_maps(grad_extrap=False, inclusive=True, exclusive=True):
+    def get_maps(grad_extrap=False, inclusive=True, exclusive=False):
 
         if not PRISM._excitations:
             print("No data in hooks. Have You used `register_hooks(model)` method?")
@@ -144,11 +143,7 @@ class PRISM:
                     rgb_features_map, PRISM._excitations
                 )
                 rgb_features_map = PRISM._normalize_to_rgb(rgb_features_map)
-            # else:
-            #     rgb_features_map = PRISM._normalize_to_rgb(extracted_features)
-            #     rgb_features_map = 0.5 * round(rgb_features_map / 0.5)
-                # rgb_features_map, _ = PRISM._quantize(rgb_features_map)
-            # prune old PRISM._excitations
+
             PRISM.reset_excitations()
 
             return rgb_features_map
