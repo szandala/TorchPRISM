@@ -1,5 +1,5 @@
 from torch.nn import Conv2d, MaxPool2d
-from torch import no_grad
+from torch import no_grad, round
 from torch.nn.functional import interpolate
 
 
@@ -48,8 +48,8 @@ class PRISM:
         final_layer_input = final_excitation.permute(0, 2, 3, 1).reshape(
             -1, final_excitation.shape[1]
         )
-        # normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
-        normalized_final_layer_input = final_layer_input
+        normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
+        # normalized_final_layer_input = final_layer_input
         u, s, v = normalized_final_layer_input.svd(compute_uv=True)
         raw_features = u[:, :3].matmul(s[:3].diag())
         return raw_features.view(
@@ -58,6 +58,42 @@ class PRISM:
             final_excitation.shape[3],
             3
         ).permute(0, 3, 1, 2)
+
+    def _quantize(maps):
+        # h,w,c
+        maps = PRISM._normalize_to_rgb(maps).permute(0, 2, 3, 1)
+        quant_maps = 0.5 * round(maps / 0.5)
+        image_colors = []
+        for img in quant_maps:
+            colors_set = set()
+            for row in img:
+                for pixel in row:
+                    colors_set.add(pixel.numpy().tostring())
+            image_colors.append(colors_set)
+
+        return quant_maps, image_colors
+
+    def _intersection(maps):
+        quant_maps, image_colors = PRISM._quantize(maps)
+        common_colors = set.intersection(*image_colors)
+        for img in quant_maps:
+            for row in img:
+                for pixel in row:
+                    if pixel.numpy().tostring() not in common_colors:
+                        pixel *= 0.0
+        return quant_maps.permute(0, 3, 1, 2)
+
+    def _difference(maps):
+        quant_maps, image_colors = PRISM._quantize(maps)
+        all_colors= set(chain.from_iterable(image_colors))
+        exclusive_colors = all_colors - set.intersection(*image_colors)
+        for img in quant_maps:
+            for row in img:
+                for pixel in row:
+                    if pixel.numpy().tostring() not in exclusive_colors:
+                        pixel *= 0.0
+        return quant_maps.permute(0, 3, 1, 2)
+
 
     def _upsampling(extracted_features, pre_excitations):
         for e in pre_excitations[::-1]:
@@ -78,7 +114,7 @@ class PRISM:
         )
         return scaled_features
 
-    def get_maps():
+    def get_maps(grad_extrap=False, inclusive=True, exclusive=True):
         if not PRISM._excitations:
             print("No data in hooks. Have You used `register_hooks(model)` method?")
             return
@@ -87,10 +123,22 @@ class PRISM:
 
         with no_grad():
             extracted_features = PRISM._svd(PRISM._excitations.pop())
-            extracted_features = PRISM._upsampling(
-                extracted_features, PRISM._excitations
-            )
-            rgb_features_map = PRISM._normalize_to_rgb(extracted_features)
+
+            if inclusive and exclusive:
+                rgb_features_map, _ = PRISM._quantize(extracted_features)
+                rgb_features_map = rgb_features_map.permute(0, 3, 1, 2)
+            elif exclusive:
+                rgb_features_map = PRISM._difference(extracted_features)
+            elif inclusive:
+                rgb_features_map = PRISM._intersection(extracted_features)
+            else:
+                rgb_features_map = extracted_features
+
+            if grad_extrap:
+                rgb_features_map = PRISM._upsampling(
+                    rgb_features_map, PRISM._excitations
+                )
+                rgb_features_map = PRISM._normalize_to_rgb(rgb_features_map)
 
             # prune old PRISM._excitations
             PRISM.reset_excitations()

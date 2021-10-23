@@ -59,17 +59,17 @@ def normalize_image(image):
     return (image - image.min()) / (image.max() - image.min())
 
 if __name__ == "__main__":
-    arches = [ #"vgg16"]
-        "vgg11",
-        "vgg16",
-        "vgg19",
-        "resnet18",
-        "resnet50",
-        "resnet101",
-        "googlenet",
-        "alexnet",
-        "mobilenet_v2",
-        "squeezenet1_0"]
+    arches = [ "vgg16"]
+        # "vgg11",
+        # "vgg16",
+        # "vgg19",
+        # "resnet18",
+        # "resnet50",
+        # "resnet101",
+        # "googlenet",
+        # "alexnet",
+        # "mobilenet_v2",
+        # "squeezenet1_0"]
 
     for arch in arches:
         with torch.no_grad():
@@ -114,5 +114,4 @@ if __name__ == "__main__":
                     ax[1][column].axis('off')
 
             fig.tight_layout()
-            plt.savefig(f"PRISM_{arch}.png", format='png', bbox_inches="tight", dpi=500)
-
+            plt.savefig(f"results/PRISM_{arch}.jpg", format='jpg', bbox_inches="tight", dpi=500)
