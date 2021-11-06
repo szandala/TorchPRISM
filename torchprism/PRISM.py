@@ -1,6 +1,7 @@
 from torch.nn import Conv2d, MaxPool2d
 from torch import no_grad, round
 from torch.nn.functional import interpolate
+from itertools import chain
 
 
 class PRISM:
@@ -114,7 +115,7 @@ class PRISM:
         )
         return scaled_features
 
-    def get_maps(grad_extrap=False, inclusive=True, exclusive=True):
+    def get_maps(grad_extrap=True, inclusive=False, exclusive=False):
         if not PRISM._excitations:
             print("No data in hooks. Have You used `register_hooks(model)` method?")
             return
@@ -135,6 +136,7 @@ class PRISM:
                 rgb_features_map = extracted_features
 
             if grad_extrap:
+                print("grad extr")
                 rgb_features_map = PRISM._upsampling(
                     rgb_features_map, PRISM._excitations
                 )
