@@ -5,6 +5,31 @@
 A novel tool that utilizes Principal Component Analysis to display discriminative featues detected by a given convolutional neural network.
 It complies with virtually all CNNs.
 
+### Usage
+
+For user's convenience we have prepared an argument-feedable excutable `prism`.
+In order to use it, please prepare virtual env:
+```sh
+python -m venv venv
+source ./venv/bin/activate
+pip install -r requirements.txt
+./prism
+```
+
+### `prism` arguments
+
+| Argument | Description | Result |
+| :---: | :---: | :---: |
+| none | Default PRISM exection with Gradual Extrapolation applied | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_vanilla.jpg) |
+| --no-gradual-extrapolation | Skipping Gradual Extrapolation | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge.jpg) |
+| --inclusive | Quantize colours and show only common for all images in batch | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_inclusive.jpg) |
+| --inclusive & --no-gradual-extrapolation | Quantize colours and show only common for all images in batch. **Skip GE!** | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge_inclusive.jpg) |
+| --exclusive | Quantize colours and show only unique features for images in batch | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_exclusive.jpg) |
+| --exclusive & --no-gradual-extrapolation | Quantize colours and show only unique features for images in batch. **Skip GE!** | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge_exclusive.jpg) |
+| --exclusive & --inclusive | Quantize original PRISM output **Skip GE!** | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_inclusive_exclusive.jpg) |
+
+
+
 ### Demo
 
 [Simplest snippet](https://github.com/szandala/TorchPRISM/blob/master/SoftwareX_snippet/snippet.py) of working code.
