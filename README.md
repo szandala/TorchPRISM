@@ -5,7 +5,15 @@
 A novel tool that utilizes Principal Component Analysis to display discriminative featues detected by a given convolutional neural network.
 It complies with virtually all CNNs.
 
-### Usage
+# Table of Contents
+* [Usage](#Usage)
+* [`prism` arguments](#`prism`-arguments)
+* [Other arguments](#Other-arguments)
+* [Demo](#Demo)
+* [Results](#Results)
+* [Citation](#Citation)
+
+## Usage
 
 For user's convenience we have prepared an argument-feedable excutable `prism`.
 In order to use it, please prepare virtual env:
@@ -16,7 +24,7 @@ pip install -r requirements.txt
 ./prism
 ```
 
-### `prism` arguments
+## `prism` arguments
 
 | Argument | Description | Result |
 | :---: | :---: | :---: |
@@ -29,8 +37,15 @@ pip install -r requirements.txt
 | --exclusive & --inclusive | Quantize original PRISM output **Skip GE!** | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_inclusive_exclusive.jpg) |
 
 
+## Other arguments
 
-### Demo
+| Argument | Description | Default |
+| :---: | :---: | :---: |
+| --input=`/path/to/...` | Path from where to take images. Note it is a `glob`, so value `./samples/**/*.jpg` will mean: `jpg` images from ALL subfolders of `samples` | `./samples/*.jpg` |
+| --model=`model-name` | Model to be used with PRISM. Note that Gradual Extrapolation may not behave properly for some models outside *vgg* family. | vgg16 |
+| --help | Print help details and exit |  |
+
+## Demo
 
 [Simplest snippet](https://github.com/szandala/TorchPRISM/blob/master/SoftwareX_snippet/snippet.py) of working code.
 
@@ -59,7 +74,7 @@ draw_input_n_prism(drawable_input_batch, drawable_prism_maps_batch)
 First we have to import PRISM and torch models., as well as functions for preparing input images as simple torch batch and function to draw batches. Next we have to load the model, in this case a pretrained vgg11 has been chosen and then we have to call the first PRISM method to register required hooks in the model.
 With such a prepared model we can perform the classification and, since the actual output is not needed, we can just ignore it. Model execution is followed by using the second PRISM method to calculate features maps for the processed batch. Finally we have to prepare both input and PRISM output so they can be drawn and as the last step we call a method that displays them using e.g. matplotlib.
 
-### Results
+## Results
 
 The results allow us to see the discriminative features found by the model.
 On the sample images below we can see wolves
@@ -69,7 +84,7 @@ On the sample images below we can see wolves
 We can notice that all wolves have similar colors - features, found on their bodies. Furthermore the coyote also shows almost identical characteristics except the mouth element. wolves have a black stain around their noses, while coyote does not.
 
 
-### Citation
+## Citation
 Currently in the form of pre-print, but hope soon as publication.
 
 ```raw
