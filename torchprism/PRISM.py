@@ -136,11 +136,10 @@ class PRISM:
                 rgb_features_map = extracted_features
 
             if grad_extrap:
-                print("grad extr")
                 rgb_features_map = PRISM._upsampling(
                     rgb_features_map, PRISM._excitations
                 )
-                rgb_features_map = PRISM._normalize_to_rgb(rgb_features_map)
+            rgb_features_map = PRISM._normalize_to_rgb(rgb_features_map)
 
             # prune old PRISM._excitations
             PRISM.reset_excitations()
