@@ -18,8 +18,9 @@ It complies with virtually all CNNs.
 For user's convenience we have prepared an argument-feedable excutable `prism`.
 In order to use it, please prepare virtual env:
 ```sh
-python -m venv venv
+python3 -m venv venv
 source ./venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements.txt
 ./prism
 ```
