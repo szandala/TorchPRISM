@@ -100,7 +100,10 @@ def main(args):
 
             plt.title(f"PRISM")
             columns = input_batch.shape[0]
-            fig, ax = plt.subplots(nrows=2, ncols=columns)
+            if args.split_rgb:
+                fig, ax = plt.subplots(nrows=5, ncols=columns)
+            else:
+                fig, ax = plt.subplots(nrows=2, ncols=columns)
             input_batch = input_batch.permute(0, 2, 3, 1).detach().cpu().numpy()
 
             if columns == 1:
@@ -109,6 +112,15 @@ def main(args):
                 ax[0].axis('off')
                 ax[1].imshow(prism_maps[0])
                 ax[1].axis('off')
+
+                if args.split_rgb:
+                    ax[1].imshow(prism_maps[0])
+                    ax[2].imshow(prism_maps[0][:, :, 0], cmap="Reds")
+                    ax[3].imshow(prism_maps[0][:, :, 1], cmap="Greens")
+                    ax[4].imshow(prism_maps[0][:, :, 2], cmap="Blues")
+                    for i in range(2, 5):
+                        ax[i].axis('off')
+
             else:
                 for column in range(columns):
                     ax[0][column].imshow(normalize_image(input_batch[column]))
@@ -118,6 +130,13 @@ def main(args):
                 for column in range(columns):
                     ax[1][column].imshow(prism_maps[column])
                     ax[1][column].axis('off')
+
+                    if args.split_rgb:
+                        ax[2][column].imshow(prism_maps[column][:, :, 0], cmap="Reds")
+                        ax[3][column].imshow(prism_maps[column][:, :, 1], cmap="Greens")
+                        ax[4][column].imshow(prism_maps[column][:, :, 2], cmap="Blues")
+                        for i in range(2, 5):
+                            ax[i][column].axis('off')
 
             fig.tight_layout()
             plt.savefig(f"results/PRISM_{arch}.jpg", format='jpg', bbox_inches="tight", dpi=500)
@@ -137,6 +156,9 @@ def parse_args():
     parser.add_argument("--exclusive", action="store_true",
         help="R|Quantize PRISM output and show features unique to given image\n"+
         "Can be used with '--inclusive' for full quantized PRISM output")
+    parser.add_argument("--split-rgb", action="store_true",
+        help="Split colors into RGB channels")
+
     parser.add_argument("--model", default="vgg16",
         help="Choose model from the PyTorch pre-trained zoo. Default %(default)s",
         choices=["vgg11",

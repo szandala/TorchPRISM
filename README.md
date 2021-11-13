@@ -30,12 +30,14 @@ pip install -r requirements.txt
 | Argument | Description | Result |
 | :---: | :---: | :---: |
 | none | Default PRISM exection with Gradual Extrapolation applied | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_vanilla.jpg) |
-| --no-gradual-extrapolation | Skipping Gradual Extrapolation | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge.jpg) |
-| --inclusive | Quantize colours and show only common for all images in batch | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_inclusive.jpg) |
-| --inclusive & --no-gradual-extrapolation | Quantize colours and show only common for all images in batch. **Skip GE!** | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge_inclusive.jpg) |
-| --exclusive | Quantize colours and show only unique features for images in batch | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_exclusive.jpg) |
-| --exclusive & --no-gradual-extrapolation | Quantize colours and show only unique features for images in batch. **Skip GE!** | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge_exclusive.jpg) |
-| --exclusive & --inclusive | Quantize original PRISM output **Skip GE!** | ![Vanilla result](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_inclusive_exclusive.jpg) |
+| --no-gradual-extrapolation | Skipping Gradual Extrapolation | ![Disabled Gradual Extrapolation](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge.jpg) |
+| --inclusive | Quantize colours and show only common for all images in batch | ![Only common features](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_inclusive.jpg) |
+| --inclusive & --no-gradual-extrapolation | Quantize colours and show only common for all images in batch. **Skip GE!** | ![Inclusive, no GE](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge_inclusive.jpg) |
+| --exclusive | Quantize colours and show only unique features for images in batch | ![Only unique features](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_exclusive.jpg) |
+| --exclusive & --no-gradual-extrapolation | Quantize colours and show only unique features for images in batch. **Skip GE!** | ![Exclusive, no GE](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge_exclusive.jpg) |
+| --exclusive & --inclusive | Quantize original PRISM output **Skip GE!** | ![Quantized vanilla result without GE](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_inclusive_exclusive.jpg) |
+| --split-rgb |Split PRISM output into separate RGB channels. | ![RGB split](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_RGB.jpg) |
+| --split-rgb & --no-gradual-extrapolation | Also split into RGB, but without Gradual Extrapolation. **Skip GE!** Note it can also go with `--inclusive` or `--exclusive`| ![RGB split, no GE](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge_RGB.jpg) |
 
 
 ## Other arguments
