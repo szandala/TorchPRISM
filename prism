@@ -48,7 +48,11 @@ def read_images_2_batch(images_path="./samples/*.jpg"):
     return image_files, input_images, input_batch
 
 def prepare_network(arch):
-    model = models.__dict__[arch](pretrained=True)
+    if arch.startswith("./"):
+        model = torch.load(arch)
+    else:
+        model = models.__dict__[arch](pretrained=True)
+
     model.eval()
     PRISM.register_hooks(model)
     return model
