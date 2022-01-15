@@ -145,6 +145,13 @@ def main(args):
             fig.tight_layout()
             plt.savefig(f"results/PRISM_{arch}.jpg", format='jpg', bbox_inches="tight", dpi=500)
 
+            variances = PRISM.get_variances()
+            fig = plt.figure()
+            ax = fig.add_axes([0,0,1,1])
+            channels = [i for i in range(len(variances))]
+            ax.bar(channels,variances)
+            plt.savefig(f"results/PRISM_var_{arch}.jpg", format='jpg', bbox_inches="tight", dpi=500)
+
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Analize deep vision for a batch of images",

@@ -2,12 +2,16 @@ from torch.nn import Conv2d, MaxPool2d
 from torch import no_grad, round
 from torch.nn.functional import interpolate
 from itertools import chain
-
+from icecream import ic
 
 class PRISM:
     _excitations = []
     _hook_handlers = []
     _is_orig_image = True
+    _variances = None
+
+    def get_variances():
+        return PRISM._variances
 
     def _excitation_hook(module, input, output):
         # for better output sharpness we collect input images
@@ -41,7 +45,7 @@ class PRISM:
             hook.remove()
 
         PRISM._hook_handlers = []
-
+        PRISM._variances = None
     ###############################################
 
     def _svd(final_excitation):
@@ -51,8 +55,14 @@ class PRISM:
         )
         normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
         # normalized_final_layer_input = final_layer_input
+        ic(normalized_final_layer_input.shape)
         u, s, v = normalized_final_layer_input.svd(compute_uv=True)
+        # ic(s.shape)
+        PRISM._variances = s**2/sum(s**2)
+        # ic(variances)
+        # ic(sum(variances[:3]))
         raw_features = u[:, :3].matmul(s[:3].diag())
+
         return raw_features.view(
             final_excitation.shape[0],
             final_excitation.shape[2],
