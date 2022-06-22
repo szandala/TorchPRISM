@@ -91,7 +91,6 @@ We can notice that all wolves have similar colors - features, found on their bod
 - [IEEE Access: Gradual Extrapolation](https://ieeexplore.ieee.org/document/9468713)
 - [ICCS-2021: Attention Focus](https://www.iccs-meeting.org/archive/iccs2021/papers/127430415.pdf)
 - [ICCS-2022: PRISM](https://docs.google.com/document/d/1jFEyjZdj8HFdPmgQMhqpLgs4Yi_1t7X1/edit?usp=sharing&ouid=111364369145250786679&rtpof=true&sd=true)
-*Accepted, not yet published*
 - [PP RAI'22: Summary](https://docs.google.com/document/d/1_-TKex_0BW2pV3BO4Uwk6gF3Cer2bB5qUdgxWns0e-4/edit?usp=sharing)
 
 ## Citation
