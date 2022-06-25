@@ -124,15 +124,14 @@ def main(args):
 
             image_files_names, input_images, input_batch = read_images_2_batch(args.input)
 
-            # if torch.cuda.is_available():
-            #     print("Running on GPU")
-            #     input_batch = input_batch.to("cuda")
-            #     model.to("cuda")
+            if torch.cuda.is_available():
+                print("Running on GPU")
+                input_batch = input_batch.to("cuda")
+                model.to("cuda")
 
 
             output = model(input_batch)
             percentage = nn.Softmax(dim=1)
-            # print(f"SHAPE {output.shape}")
             classification = print_output(percentage(output), image_files_names)
             best_classes_IDs = [int(v.argmax()) for v in output]
 
@@ -141,7 +140,7 @@ def main(args):
                 inclusive=args.inclusive,
                 exclusive=args.exclusive
                 ).permute(0, 2, 3, 1).detach().cpu().numpy()
-            # ic(prism_maps.shape)
+
             # prepare_for_clustering(best_classes_IDs, image_files_names, prism_maps)
 
             # sys.exit(0)
@@ -189,11 +188,16 @@ def main(args):
             fig.tight_layout()
             plt.savefig(f"results/PRISM_{arch}.jpg", format='jpg', bbox_inches="tight", dpi=500)
 
-            variances = PRISM.get_variances()
+            variances = PRISM.get_variances().cpu()
             fig = plt.figure()
             ax = fig.add_axes([0,0,1,1])
             channels = [i for i in range(len(variances))]
             ax.bar(channels,variances)
+            variance_desc = "PCs variances:\n"
+            for i, var in enumerate(variances[:3]):
+                variance_desc += f"  PC {i}: {var:.3f}\n"
+            ax.text(len(variances)/3, variances.max()*0.8, variance_desc[:-1], style='italic',
+                    bbox={'facecolor': 'gold', 'alpha': 0.5, 'pad': 5})
             plt.savefig(f"results/PRISM_var_{arch}.jpg", format='jpg', bbox_inches="tight", dpi=500)
 
 def parse_args():
