@@ -13,7 +13,9 @@ from PIL import Image
 import json
 import argparse
 import textwrap
-
+import pickle
+from icecream import ic
+import sys
 
 class SmartFormatter(argparse.HelpFormatter):
     def _split_lines(self, text, width):
@@ -63,7 +65,7 @@ def print_output(output, image_files_names):
     for i, name in enumerate(image_files_names):
         print(f"\n{name}:")
         classes = []
-        for k, v in sorted(listed_output[i].items(), key=lambda o: o[1], reverse=True)[:5]:
+        for k, v in sorted(listed_output[i].items(), key=lambda o: o[1], reverse=True)[:3]:
             # print(f"{k}: {v:.2f}")
             classes.append(f"{k}: {v:.2f}")
         classification.append(classes)
@@ -72,6 +74,43 @@ def print_output(output, image_files_names):
 def normalize_image(image):
     # change image tensor from -1,1 to 0,1
     return (image - image.min()) / (image.max() - image.min())
+
+def create_cluster_attributes(possible_colors, images_colors, image_files_names,best_classes_IDs):
+    attr_matrix = [[0]*len(possible_colors) for _ in range(len(images_colors))]
+    for i, image in enumerate(images_colors):
+        for j, color in enumerate(possible_colors):
+            if color in image:
+                attr_matrix[i][j] = 1
+    # print(attr_matrix)
+
+    with open("2cluster.bin", "wb") as f:
+        pickle.dump(zip(image_files_names, best_classes_IDs, attr_matrix), f)
+
+def prepare_for_clustering(best_classes_IDs, image_files_names, prism_maps):
+    # print(image_files_names)
+    images_colors = []
+    possible_colors = set()
+    for i, image in enumerate(prism_maps):
+        # print(image_files_names[i])
+        # attrs_dict = {}
+        image_colors = set()
+        for row in image:
+            for pixel in row:
+                # print(pixel.tostring())
+                # attrs_dict[pixel.tostring()] = 1
+                # if pixel.tostring() in possible_colors:
+                #     continue
+                # print(pixel)
+                pixel_str = pixel.tobytes()
+                image_colors.add(pixel_str)
+                possible_colors.add(pixel_str)
+        images_colors.append(image_colors)
+    create_cluster_attributes(possible_colors, images_colors, image_files_names, best_classes_IDs)
+    # for i, image in enumerate(prism_maps):
+    #     print(f"{image_files_names[i]} = {len(images_colors[i])}")
+
+    # print(prism_maps[0].shape)
+
 
 def main(args):
     print(args)
@@ -85,22 +124,27 @@ def main(args):
 
             image_files_names, input_images, input_batch = read_images_2_batch(args.input)
 
-            if torch.cuda.is_available():
-                print("Running on GPU")
-                input_batch = input_batch.to("cuda")
-                model.to("cuda")
+            # if torch.cuda.is_available():
+            #     print("Running on GPU")
+            #     input_batch = input_batch.to("cuda")
+            #     model.to("cuda")
 
 
             output = model(input_batch)
             percentage = nn.Softmax(dim=1)
             # print(f"SHAPE {output.shape}")
             classification = print_output(percentage(output), image_files_names)
+            best_classes_IDs = [int(v.argmax()) for v in output]
 
             prism_maps = PRISM.get_maps(
                 grad_extrap=args.no_gradual_extrapolation,
                 inclusive=args.inclusive,
                 exclusive=args.exclusive
                 ).permute(0, 2, 3, 1).detach().cpu().numpy()
+            # ic(prism_maps.shape)
+            # prepare_for_clustering(best_classes_IDs, image_files_names, prism_maps)
+
+            # sys.exit(0)
 
             plt.title(f"PRISM")
             columns = input_batch.shape[0]
@@ -128,7 +172,7 @@ def main(args):
             else:
                 for column in range(columns):
                     ax[0][column].imshow(normalize_image(input_batch[column]))
-                    ax[0][column].set_title("\n".join(classification[column]), fontsize=3)
+                    ax[0][column].set_title("\n".join(classification[column]), fontsize=7)
                     ax[0][column].axis('off')
 
                 for column in range(columns):

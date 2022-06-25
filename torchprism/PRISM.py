@@ -55,13 +55,15 @@ class PRISM:
         )
         normalized_final_layer_input = final_layer_input - final_layer_input.mean(0)
         # normalized_final_layer_input = final_layer_input
-        ic(normalized_final_layer_input.shape)
+        # normalized_final_layer_input = normalized_final_layer_input.transpose(0, 1)
         u, s, v = normalized_final_layer_input.svd(compute_uv=True)
-        # ic(s.shape)
         PRISM._variances = s**2/sum(s**2)
         # ic(variances)
         # ic(sum(variances[:3]))
         raw_features = u[:, :3].matmul(s[:3].diag())
+        # ic( u[:, :].matmul(s[:].diag()).shape)
+        # ic( u[:, :3].matmul(s[:3].diag()).shape)
+        # raw_features = raw_features.transpose(0, 1)
 
         return raw_features.view(
             final_excitation.shape[0],
@@ -74,6 +76,8 @@ class PRISM:
         # h,w,c
         maps = PRISM._normalize_to_rgb(maps).permute(0, 2, 3, 1)
         quant_maps = 0.5 * round(maps / 0.5)
+        # ic(quant_maps)
+        # ic(f"{quant_maps[0]}")3*3*3
         image_colors = []
         for img in quant_maps:
             colors_set = set()
