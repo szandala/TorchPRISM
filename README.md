@@ -12,7 +12,6 @@ It complies with virtually all CNNs.
 * [Demo](#Demo)
 * [Results](#Results)
 * [Read more](#Read-more)
-* [Citation](#Citation)
 
 ## Usage
 
