@@ -6,7 +6,6 @@ from torchvision import transforms
 from torchvision import models
 from torchprism import PRISM
 import matplotlib.pyplot as plt
-import cv2
 from PIL import Image
 import json
 
@@ -17,12 +16,8 @@ with open("classes.json") as json_file:
 CLASSES_IDs = { int(k): v.split(",")[0].replace(" ", "_") for k,v in CLASSES.items() }
 CLASSES_NAMEs = { v.split(",")[0].replace(" ", "_").lower(): int(k) for k,v in CLASSES.items() }
 
-crop = transforms.Compose([
-    transforms.ToPILImage(),
-    transforms.Resize((224, 224))
-])
-
-normalize = transforms.Compose([
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
@@ -31,8 +26,8 @@ def read_images_2_batch():
     image_files = glob.glob("./samples/*.jpg")
     image_files.sort()
 
-    input_images = [ cv2.cvtColor(cv2.imread(f), cv2.COLOR_BGR2RGB) for f in image_files ]
-    input_batch = torch.stack([normalize(crop(image)) for image in input_images])
+    input_images = [Image.open(f) for f in image_files]
+    input_batch = torch.stack([transform(image) for image in input_images])
 
     return image_files, input_images, input_batch
 
@@ -59,7 +54,8 @@ def normalize_image(image):
     return (image - image.min()) / (image.max() - image.min())
 
 if __name__ == "__main__":
-    arches = [ "vgg16"]
+    arches = [
+        # "vgg16",
         # "vgg11",
         # "vgg16",
         # "vgg19",
@@ -69,7 +65,8 @@ if __name__ == "__main__":
         # "googlenet",
         # "alexnet",
         # "mobilenet_v2",
-        # "squeezenet1_0"]
+        # "squeezenet1_0"
+    ]
 
     for arch in arches:
         with torch.no_grad():
@@ -92,7 +89,6 @@ if __name__ == "__main__":
 
             prism_maps = PRISM.get_maps().permute(0, 2, 3, 1).detach().cpu().numpy()
 
-            plt.title(f"PRISM")
             columns = input_batch.shape[0]
             fig, ax = plt.subplots(nrows=2, ncols=columns)
             input_batch = input_batch.permute(0, 2, 3, 1).detach().cpu().numpy()
@@ -113,5 +109,7 @@ if __name__ == "__main__":
                     ax[1][column].imshow(prism_maps[column])
                     ax[1][column].axis('off')
 
+            fig.suptitle(f'PRISM', fontsize=10)
             fig.tight_layout()
+            fig.subplots_adjust(top=0.99)
             plt.savefig(f"results/PRISM_{arch}.jpg", format='jpg', bbox_inches="tight", dpi=500)
