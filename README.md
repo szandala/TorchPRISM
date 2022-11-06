@@ -46,7 +46,7 @@ pip install -r requirements.txt
 | :---: | :---: | :---: |
 | --input=`/path/to/...` | Path from where to take images. Note it is a `glob`, so value `./samples/**/*.jpg` will mean: `jpg` images from ALL subfolders of `samples` | `./samples/*.jpg` |
 | --model=`model-name` | Model to be used with PRISM. Note that Gradual Extrapolation may not behave properly for some models outside *vgg* family. | `vgg16` |
-| --salience=`model-name` | Makes TorchPRISM perform chosen salience map generating process and combines it with PRISM’s output. Currently supports:<br>- Contrastive Excitation Backpropagation `exct-backp`<br>- GradCAM `gradcam` | `none` |
+| --saliency=`model-name` | Makes TorchPRISM perform chosen saliency map generating process and combines it with PRISM’s output. Currently supports:<br>- Contrastive Excitation Backpropagation `exct-backp`<br>- GradCAM `gradcam` | `none` |
 | --cluster | Generates binary file with list of lists - which image contains which features according to PRISM. It can be further used for clustering in script som.py |  |
 | --help | Print help details and exit |  |
 
@@ -88,6 +88,8 @@ On the sample images below we can see wolves
 
 We can notice that all wolves have similar colors - features, found on their bodies. Furthermore the coyote also shows almost identical characteristics except the mouth element. wolves have a black stain around their noses, while coyote does not.
 
+## Variance across all Principal Componentes
+
 ![Variance for PCs](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_var_vgg16.jpg)
 
 Also an image with variance is being plotted.
@@ -95,6 +97,25 @@ Also an image with variance is being plotted.
 ## Saliency maps integration
 
 Since PRISM can be integrated with all saliency map types it comes with built-in generating tools.
+We have an example where dog (malamute) is properly recognized by VGG-16 model. However it is alongside mushroom, which despite being correctly identified, has no impact on models classification decision.
+Apparently mushroom is not important for the classification, therefore we can generate saliency map for the given example and merge it with PRISM's output.
+![Saliency map combination with PRISM](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_with_saliency.jpg)
+
+## Clustering
+
+Last but not least a clusterig can be performed using PRISM in order to detect potentially amibgious classes.
+We have taken 5 canine classes (colour from cluster map in bracket):
+- coyote (orange)
+- grey fox (red)
+- timber wolf (green)
+- samoyed (purple)
+- border collie (blue)
+
+
+![Clustering of PRISM's output](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/clustering.png)
+
+From the figure we can conclude that coyotes(orange) could be easily confused with timber wolves(green) and grey foxes(red). On the other hand the Samoyed and Border collie specimens (purple and blue respectively) are clearly distinguishable from the rest.
+
 
 ## Read more
 - [IEEE Access: Gradual Extrapolation](https://ieeexplore.ieee.org/document/9468713)
