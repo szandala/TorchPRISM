@@ -1,9 +1,12 @@
 # PRISM - **Pr**incipal **I**mage **S**ections **M**apping
 
-![PRISM logo](https://raw.githubusercontent.com/szandala/TorchPRISM/master/PRISM_logo.png)
+![TorchPRISM's summary](https://raw.githubusercontent.com/szandala/TorchPRISM/master/TorchPRISM_summary.png)
+
+Graphic Author: [*Natalia Rusin*](https://github.com/Nat3005)
 
 A novel tool that utilizes Principal Component Analysis to display discriminative featues detected by a given convolutional neural network.
 It complies with virtually all CNNs.
+
 
 # Table of Contents
 * [Usage](#Usage)
@@ -120,9 +123,13 @@ We have taken 5 canine classes (colour from cluster map in bracket):
 From the figure we can conclude that coyotes(orange) could be easily confused with timber wolves(green) and grey foxes(red). On the other hand the Samoyed and Border collie specimens (purple and blue respectively) are clearly distinguishable from the rest.
 
 
+
 ## Read more
 - **[PRISM comparison with other methods](https://github.com/szandala/TorchPRISM/tree/comparison/comparison_with_others)**
 - [IEEE Access: Gradual Extrapolation](https://ieeexplore.ieee.org/document/9468713)
 - [ICCS-2021: Attention Focus](https://www.iccs-meeting.org/archive/iccs2021/papers/127430415.pdf)
 - [ICCS-2022: PRISM](https://link.springer.com/chapter/10.1007/978-3-031-08751-6_54)
 - [PP RAI'22: Summary](https://docs.google.com/document/d/1_-TKex_0BW2pV3BO4Uwk6gF3Cer2bB5qUdgxWns0e-4/edit?usp=sharing)
+
+**Old LOGO**
+![PRISM old logo](https://raw.githubusercontent.com/szandala/TorchPRISM/master/PRISM_logo.png)
