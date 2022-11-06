@@ -16,6 +16,8 @@ import textwrap
 import pickle
 from icecream import ic
 import sys
+from torchray.attribution.grad_cam import grad_cam
+from torchray.attribution.deconvnet import deconvnet
 
 class SmartFormatter(argparse.HelpFormatter):
     def _split_lines(self, text, width):
@@ -23,6 +25,89 @@ class SmartFormatter(argparse.HelpFormatter):
             return text[2:].splitlines()
         # this is the RawTextHelpFormatter._split_lines
         return argparse.HelpFormatter._split_lines(self, text, width)
+
+def _imsc(img, *args,  interpolation="lanczos", **kwargs):
+    r"""Rescale and displays an image represented as a img.
+
+    The function scales the img :attr:`im` to the [0 ,1] range.
+    The img is assumed to have shape :math:`3\times H\times W` (RGB)
+    :math:`1\times H\times W` (grayscale).
+
+    Args:
+        img (:class:`torch.Tensor` or :class:`PIL.Image`): image.
+        quiet (bool, optional): if False, do not display image.
+            Default: ``False``.
+        lim (list, optional): maximum and minimum intensity value for
+            rescaling. Default: ``None``.
+        interpolation (str, optional): The interpolation mode to use with
+            :func:`matplotlib.pyplot.imshow` (e.g. ``"lanczos"`` or
+            ``"nearest"``). Default: ``"lanczos"``.
+
+    Returns:
+        Nothing, changes in-place
+    """
+
+    with torch.no_grad():
+        lim = [img.min(), img.max()]
+        img = img - lim[0]  # also makes a copy
+        img.mul_(1 / (lim[1] - lim[0]))
+        img = torch.clamp(img, min=0, max=1)
+        # print(img.shape)
+        # bitmap = img.expand(*img.shape).permute(1, 2, 0).cpu().numpy()
+        bitmap = img.permute(1, 2, 0).cpu().numpy()
+        handle = plt.imshow(
+            bitmap, *args, **kwargs)
+        curr_ax = plt.gca()
+        curr_ax.axis("off")
+
+
+def plot_example(input,
+                 saliency,
+                 method,
+                 category_id,
+                 save_path=None):
+    """Plot an example.
+
+    Args:
+        input (:class:`torch.Tensor`): 4D tensor containing input images.
+        saliency (:class:`torch.Tensor`): 4D tensor containing saliency maps.
+        method (str): name of saliency method.
+        category_id (int): ID of ImageNet category.
+        show_plot (bool, optional): If True, show plot. Default: ``False``.
+        save_path (str, optional): Path to save figure to. Default: ``None``.
+    """
+
+
+    if isinstance(category_id, int):
+        category_id = [category_id]
+
+    batch_size = len(input)
+
+    plt.clf()
+    for i in range(batch_size):
+        class_i = category_id[i % len(category_id)]
+        plt.subplot(batch_size, 2, 1 + 2 * i)
+        plt.tight_layout(pad=0.0)
+        _imsc(input[i])
+
+        plt.rcParams['axes.titley'] = 1.0    # y is in axes-relative co-ordinates.
+        plt.rcParams['axes.titlepad'] = 1  # pad is in points...
+
+        plt.title("input image", fontsize=6)
+        plt.subplot(batch_size, 2, 2 + 2 * i)
+        _imsc(saliency[i], interpolation="bilinear", cmap="jet")
+
+        cls_name = "XXX" #IMAGENET_CLASSES[class_i].split(",")[0]
+        plt.title("{} for {}".format(method, cls_name), fontsize=6)
+
+    # Save figure if path is specified.
+    if save_path:
+        save_dir = os.path.dirname(os.path.abspath(save_path))
+        # Create directory if necessary.
+        if not os.path.exists(save_dir):
+            os.makedirs(save_dir)
+        ext = os.path.splitext(save_path)[1].strip(".")
+        plt.savefig(save_path, format=ext, dpi=300, bbox_inches="tight")
 
 with open("classes.json") as json_file:
     CLASSES = json.load(json_file)
@@ -111,6 +196,15 @@ def prepare_for_clustering(best_classes_IDs, image_files_names, prism_maps):
 
     # print(prism_maps[0].shape)
 
+def generate_saliency_map(saliency_type, model, input_batch, best_classes_IDs):
+    torch.set_grad_enabled(True)
+    deconvnet(model, input_batch, best_classes_IDs)
+    return grad_cam(
+        model,
+        input_batch,
+        best_classes_IDs,
+        saliency_layer="features.30",
+    )
 
 def main(args):
     print(args)
@@ -135,15 +229,20 @@ def main(args):
             classification = print_output(percentage(output), image_files_names)
             best_classes_IDs = [int(v.argmax()) for v in output]
 
+            if args.saliency != "none":
+                saliency_map = generate_saliency_map(args.saliency, model, input_batch, best_classes_IDs)
+            else:
+                saliency_map = None
+
             prism_maps = PRISM.get_maps(
                 grad_extrap=args.no_gradual_extrapolation,
                 inclusive=args.inclusive,
-                exclusive=args.exclusive
+                exclusive=args.exclusive,
+                saliency_map=saliency_map
                 ).permute(0, 2, 3, 1).detach().cpu().numpy()
 
-            # prepare_for_clustering(best_classes_IDs, image_files_names, prism_maps)
-
-            # sys.exit(0)
+            if args.cluster:
+                prepare_for_clustering(best_classes_IDs, image_files_names, prism_maps)
 
             plt.title(f"PRISM")
             columns = input_batch.shape[0]
@@ -203,6 +302,7 @@ def main(args):
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Analize deep vision for a batch of images",
+        epilog="Read more: https://link.springer.com/chapter/10.1007/978-3-031-08751-6_54",
         formatter_class=SmartFormatter)
 
     parser.add_argument("--no-gradual-extrapolation", action="store_false",
@@ -218,6 +318,10 @@ def parse_args():
     parser.add_argument("--split-rgb", action="store_true",
         help="Split colors into RGB channels")
 
+    parser.add_argument("--saliency", default="none",
+        help="Choose saliency map to be applied to PRISM's output. Default %(default)s",
+        choices=["none", "gradcam"])
+
     parser.add_argument("--model", default="vgg16",
         help="Choose model from the PyTorch pre-trained zoo. Default %(default)s",
         choices=["vgg11",
@@ -230,6 +334,10 @@ def parse_args():
         "alexnet",
         "mobilenet_v2",
         "squeezenet1_0"])
+
+    parser.add_argument("--cluster", action="store_true",
+        help="R|Exports data obtained from PRISMed layer to `2cluster.bin` to draw clusters\n"+
+        "Significantly slows the procedure")
 
     parser.add_argument("--input", default="./samples/*.jpg",
         help="Glob to find input images. Default %(default)s")

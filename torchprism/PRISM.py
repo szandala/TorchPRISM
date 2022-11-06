@@ -1,5 +1,5 @@
 from torch.nn import Conv2d, MaxPool2d
-from torch import no_grad, round
+from torch import no_grad, round, cat
 from torch.nn.functional import interpolate
 from itertools import chain
 from icecream import ic
@@ -75,7 +75,7 @@ class PRISM:
             colors_set = set()
             for row in img:
                 for pixel in row:
-                    colors_set.add(pixel.numpy().tostring())
+                    colors_set.add(pixel.cpu().numpy().tostring())
             image_colors.append(colors_set)
 
         return quant_maps, image_colors
@@ -97,7 +97,7 @@ class PRISM:
         for img in quant_maps:
             for row in img:
                 for pixel in row:
-                    if pixel.numpy().tostring() not in exclusive_colors:
+                    if pixel.cpu().numpy().tostring() not in exclusive_colors:
                         pixel *= 0.0
         return quant_maps.permute(0, 3, 1, 2)
 
@@ -121,7 +121,13 @@ class PRISM:
         )
         return scaled_features
 
-    def get_maps(grad_extrap=True, inclusive=False, exclusive=False):
+    def _merge_with_saliency(rgb_features_map, saliency_map):
+        saliency_map -= saliency_map.min()
+        saliency_map /= saliency_map.max()
+        rgb_features_map = cat((rgb_features_map, saliency_map), dim=1)
+        return rgb_features_map
+
+    def get_maps(grad_extrap=True, inclusive=False, exclusive=False, saliency_map=None):
         if not PRISM._excitations:
             print("No data in hooks. Have You used `register_hooks(model)` method?")
             return
@@ -139,6 +145,8 @@ class PRISM:
             else:
                 rgb_features_map = extracted_features
 
+            if not saliency_map == None:
+                rgb_features_map = PRISM._merge_with_saliency(rgb_features_map, saliency_map)
             if grad_extrap:
                 rgb_features_map = PRISM._upsampling(
                     rgb_features_map, PRISM._excitations

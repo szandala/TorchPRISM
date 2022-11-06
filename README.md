@@ -45,7 +45,9 @@ pip install -r requirements.txt
 | Argument | Description | Default |
 | :---: | :---: | :---: |
 | --input=`/path/to/...` | Path from where to take images. Note it is a `glob`, so value `./samples/**/*.jpg` will mean: `jpg` images from ALL subfolders of `samples` | `./samples/*.jpg` |
-| --model=`model-name` | Model to be used with PRISM. Note that Gradual Extrapolation may not behave properly for some models outside *vgg* family. | vgg16 |
+| --model=`model-name` | Model to be used with PRISM. Note that Gradual Extrapolation may not behave properly for some models outside *vgg* family. | `vgg16` |
+| --salience=`model-name` | Makes TorchPRISM perform chosen salience map generating process and combines it with PRISM’s output. Currently supports:<br>- Contrastive Excitation Backpropagation `exct-backp`<br>- GradCAM `gradcam` | `none` |
+| --cluster | Generates binary file with list of lists - which image contains which features according to PRISM. It can be further used for clustering in script som.py |  |
 | --help | Print help details and exit |  |
 
 ## Demo
@@ -89,6 +91,10 @@ We can notice that all wolves have similar colors - features, found on their bod
 ![Variance for PCs](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_var_vgg16.jpg)
 
 Also an image with variance is being plotted.
+
+## Saliency maps integration
+
+Since PRISM can be integrated with all saliency map types it comes with built-in generating tools.
 
 ## Read more
 - [IEEE Access: Gradual Extrapolation](https://ieeexplore.ieee.org/document/9468713)
