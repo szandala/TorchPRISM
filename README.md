@@ -11,6 +11,9 @@ It complies with virtually all CNNs.
 * [Other arguments](#Other-arguments)
 * [Demo](#Demo)
 * [Results](#Results)
+* [Variance across all Principal Componentes](#Variance-across-all-Principal-Componentes)
+* [Saliency maps integration](#Saliency-maps-integration)
+* [Clustering](#Clustering)
 * [Read more](#Read-more)
 
 ## Usage
@@ -118,7 +121,7 @@ From the figure we can conclude that coyotes(orange) could be easily confused wi
 
 
 ## Read more
-- [PRISM comparison with other methods](https://github.com/szandala/TorchPRISM/tree/comparison/comparison_with_others)
+- **[PRISM comparison with other methods](https://github.com/szandala/TorchPRISM/tree/comparison/comparison_with_others)**
 - [IEEE Access: Gradual Extrapolation](https://ieeexplore.ieee.org/document/9468713)
 - [ICCS-2021: Attention Focus](https://www.iccs-meeting.org/archive/iccs2021/papers/127430415.pdf)
 - [ICCS-2022: PRISM](https://link.springer.com/chapter/10.1007/978-3-031-08751-6_54)
