@@ -44,6 +44,7 @@ pip install -r requirements.txt
 | --exclusive & --inclusive | Quantize original PRISM output **Skip GE!** | ![Quantized vanilla result without GE](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_inclusive_exclusive.jpg) |
 | --split-rgb |Split PRISM output into separate RGB channels. | ![RGB split](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_RGB.jpg) |
 | --split-rgb & --no-gradual-extrapolation | Also split into RGB, but without Gradual Extrapolation. **Skip GE!** Note it can also go with `--inclusive` or `--exclusive`| ![RGB split, no GE](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_no-ge_RGB.jpg) |
+| --saliency=gradcam | Makes TorchPRISM perform chosen saliency map generating process and combines it with PRISM’s output. Currently supports:<br>- GradCAM `gradcam` | ![With saliency](https://raw.githubusercontent.com/szandala/TorchPRISM/assets/results/PRISM_with_saliency.jpg) |
 
 
 ## Other arguments
